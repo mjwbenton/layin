@@ -5,11 +5,18 @@
   import ExportButton from "./components/ExportButton.svelte";
   import { DEFAULT_PAPER } from "./lib/paper";
   import { DEFAULT_LAYOUT, DEFAULT_MARGINS } from "./lib/layout";
-  import type { PaperSize, Layout, Margins } from "./lib/types";
+  import type { PaperSize, Layout, Margins, SlotImage } from "./lib/types";
 
   let paper: PaperSize = $state(DEFAULT_PAPER);
   let layout: Layout = $state(DEFAULT_LAYOUT);
   let margins: Margins = $state(DEFAULT_MARGINS);
+  let images: (SlotImage | null)[] = $state([]);
+
+  // Reset images when layout changes (slot count may change)
+  $effect(() => {
+    const count = layout.rows * layout.cols;
+    images = Array.from({ length: count }, () => null);
+  });
 
   function handleExport() {
     // TODO: implement in Step 7
@@ -25,6 +32,6 @@
   onMarginsChange={(m) => (margins = m)}
 />
 
-<Preview {paper} {layout} {margins} />
+<Preview {paper} {layout} {margins} {images} />
 
 <ExportButton onexport={handleExport} />
