@@ -12,11 +12,35 @@
   let margins: Margins = $state(DEFAULT_MARGINS);
   let images: (SlotImage | null)[] = $state([]);
 
-  // Reset images when layout changes (slot count may change)
   $effect(() => {
     const count = layout.rows * layout.cols;
     images = Array.from({ length: count }, () => null);
   });
+
+  function handleSlotDrop(index: number, image: SlotImage) {
+    // Revoke old URL if replacing
+    if (images[index]) {
+      URL.revokeObjectURL(images[index].url);
+    }
+    images[index] = image;
+  }
+
+  function handleSlotClear(index: number) {
+    if (images[index]) {
+      URL.revokeObjectURL(images[index].url);
+      images[index] = null;
+    }
+  }
+
+  function handleSlotToggleFit(index: number) {
+    const img = images[index];
+    if (img) {
+      images[index] = {
+        ...img,
+        fitMode: img.fitMode === "fill" ? "fit" : "fill",
+      };
+    }
+  }
 
   function handleExport() {
     // TODO: implement in Step 7
@@ -32,6 +56,14 @@
   onMarginsChange={(m) => (margins = m)}
 />
 
-<Preview {paper} {layout} {margins} {images} />
+<Preview
+  {paper}
+  {layout}
+  {margins}
+  {images}
+  onSlotDrop={handleSlotDrop}
+  onSlotClear={handleSlotClear}
+  onSlotToggleFit={handleSlotToggleFit}
+/>
 
 <ExportButton onexport={handleExport} />

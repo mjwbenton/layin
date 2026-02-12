@@ -1,6 +1,7 @@
 <script lang="ts">
   import { calculateSlots } from "../lib/layout";
   import { renderLayout, type RenderSlotData } from "../lib/canvas-renderer";
+  import Slot from "./Slot.svelte";
   import type { PaperSize, Layout, Margins, SlotImage } from "../lib/types";
 
   interface Props {
@@ -8,9 +9,12 @@
     layout: Layout;
     margins: Margins;
     images: (SlotImage | null)[];
+    onSlotDrop: (index: number, image: SlotImage) => void;
+    onSlotClear: (index: number) => void;
+    onSlotToggleFit: (index: number) => void;
   }
 
-  let { paper, layout, margins, images }: Props = $props();
+  let { paper, layout, margins, images, onSlotDrop, onSlotClear, onSlotToggleFit }: Props = $props();
 
   let canvas: HTMLCanvasElement | undefined = $state();
   let container: HTMLDivElement | undefined = $state();
@@ -21,7 +25,6 @@
     calculateSlots(paper.widthPx, paper.heightPx, layout, margins),
   );
 
-  // Scale canvas to fit container while maintaining aspect ratio
   let scale = $derived.by(() => {
     if (!containerWidth || !containerHeight) return 1;
     const scaleX = containerWidth / paper.widthPx;
@@ -32,7 +35,6 @@
   let displayWidth = $derived(Math.floor(paper.widthPx * scale));
   let displayHeight = $derived(Math.floor(paper.heightPx * scale));
 
-  // Observe container size
   $effect(() => {
     if (!container) return;
     const observer = new ResizeObserver((entries) => {
@@ -44,7 +46,6 @@
     return () => observer.disconnect();
   });
 
-  // Render to canvas whenever dependencies change
   $effect(() => {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -70,25 +71,19 @@
     class="preview-canvas"
   ></canvas>
 
-  <!-- Slot overlays for drop targets -->
   <div
     class="slot-overlay-container"
     style="width: {displayWidth}px; height: {displayHeight}px;"
   >
     {#each slots as slot, i}
-      <div
-        class="slot-overlay"
-        style="
-          left: {slot.x * scale}px;
-          top: {slot.y * scale}px;
-          width: {slot.width * scale}px;
-          height: {slot.height * scale}px;
-        "
-      >
-        {#if !images[i]}
-          <span class="slot-label">Drop image {i + 1}</span>
-        {/if}
-      </div>
+      <Slot
+        index={i}
+        image={images[i]}
+        style="left: {slot.x * scale}px; top: {slot.y * scale}px; width: {slot.width * scale}px; height: {slot.height * scale}px;"
+        onDrop={onSlotDrop}
+        onClear={onSlotClear}
+        onToggleFit={onSlotToggleFit}
+      />
     {/each}
   </div>
 </div>
@@ -110,25 +105,6 @@
 
   .slot-overlay-container {
     position: absolute;
-    pointer-events: none;
-  }
-
-  .slot-overlay {
-    position: absolute;
-    pointer-events: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px dashed transparent;
-  }
-
-  .slot-overlay:has(.slot-label) {
-    border-color: #ddd;
-  }
-
-  .slot-label {
-    color: #999;
-    font-size: 12px;
     pointer-events: none;
   }
 </style>
