@@ -91,13 +91,14 @@
   .toolbar {
     background: #fff;
     border-bottom: 1px solid #ddd;
-    padding: 12px 16px;
+    padding: 10px 16px;
+    flex-shrink: 0;
   }
 
   .toolbar-row {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 20px;
     flex-wrap: wrap;
   }
 
@@ -105,18 +106,28 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    font-size: 13px;
     font-weight: 500;
+    color: #444;
   }
 
   select,
   input[type="number"] {
-    padding: 4px 8px;
+    padding: 5px 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 13px;
+    background: #fff;
+  }
+
+  select:focus,
+  input[type="number"]:focus {
+    outline: none;
+    border-color: #4a90d9;
+    box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
   }
 
   input[type="number"] {
-    width: 64px;
+    width: 60px;
   }
 </style>

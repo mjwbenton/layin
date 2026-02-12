@@ -14,13 +14,14 @@
   .export-bar {
     background: #fff;
     border-top: 1px solid #ddd;
-    padding: 12px 16px;
+    padding: 10px 16px;
     display: flex;
     justify-content: center;
+    flex-shrink: 0;
   }
 
   .export-btn {
-    padding: 8px 32px;
+    padding: 8px 36px;
     background: #4a90d9;
     color: #fff;
     border: none;
@@ -28,9 +29,14 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+    transition: background-color 0.15s;
   }
 
   .export-btn:hover {
     background: #3a7bc8;
+  }
+
+  .export-btn:active {
+    background: #2d6cb0;
   }
 </style>

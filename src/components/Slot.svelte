@@ -78,8 +78,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px dashed #ddd;
-    transition: border-color 0.15s;
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    transition: border-color 0.15s, background-color 0.15s;
   }
 
   .slot.has-image {
@@ -88,13 +89,16 @@
 
   .slot.drag-over {
     border-color: #4a90d9;
-    background: rgba(74, 144, 217, 0.1);
+    border-style: solid;
+    background: rgba(74, 144, 217, 0.08);
   }
 
   .slot-label {
-    color: #999;
+    color: #aaa;
     font-size: 12px;
     pointer-events: none;
+    text-align: center;
+    line-height: 1.4;
   }
 
   .slot-controls {
@@ -102,7 +106,7 @@
     top: 4px;
     right: 4px;
     display: flex;
-    gap: 4px;
+    gap: 3px;
     opacity: 0;
     transition: opacity 0.15s;
   }
@@ -112,16 +116,18 @@
   }
 
   .slot-btn {
-    padding: 2px 6px;
+    padding: 3px 8px;
     font-size: 11px;
-    background: rgba(0, 0, 0, 0.6);
+    font-weight: 500;
+    background: rgba(0, 0, 0, 0.55);
     color: #fff;
     border: none;
     border-radius: 3px;
     cursor: pointer;
+    backdrop-filter: blur(4px);
   }
 
   .slot-btn:hover {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.75);
   }
 </style>
