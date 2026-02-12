@@ -11,4 +11,8 @@ export default defineConfig({
       ignored: ["**/src-tauri/**"],
     },
   },
+  test: {
+    environment: "jsdom",
+    include: ["src/tests/**/*.test.ts"],
+  },
 });
