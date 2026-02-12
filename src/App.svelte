@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import "./styles/global.css";
   import Toolbar from "./components/Toolbar.svelte";
   import Preview from "./components/Preview.svelte";
@@ -42,6 +43,17 @@
       };
     }
   }
+
+  // Prevent browser from navigating to dropped files
+  onMount(() => {
+    const prevent = (e: Event) => e.preventDefault();
+    window.addEventListener("dragover", prevent);
+    window.addEventListener("drop", prevent);
+    return () => {
+      window.removeEventListener("dragover", prevent);
+      window.removeEventListener("drop", prevent);
+    };
+  });
 
   async function handleExport() {
     await exportJpeg(paper, layout, margins, images);

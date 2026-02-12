@@ -81,6 +81,7 @@
     border: 2px dashed #ccc;
     border-radius: 4px;
     transition: border-color 0.15s, background-color 0.15s;
+    pointer-events: auto;
   }
 
   .slot.has-image {
