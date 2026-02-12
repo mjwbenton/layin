@@ -14,6 +14,8 @@ export interface Layout {
 
 export type FitMode = "fill" | "fit";
 
+export type Orientation = "portrait" | "landscape";
+
 export interface SlotImage {
   url: string;
   element: HTMLImageElement;

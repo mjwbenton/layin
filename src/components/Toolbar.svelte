@@ -1,18 +1,20 @@
 <script lang="ts">
   import { PAPER_SIZES } from "../lib/paper";
   import { LAYOUTS } from "../lib/layout";
-  import type { PaperSize, Layout, Margins } from "../lib/types";
+  import type { PaperSize, Layout, Margins, Orientation } from "../lib/types";
 
   interface Props {
     paper: PaperSize;
     layout: Layout;
     margins: Margins;
+    orientation: Orientation;
     onPaperChange: (paper: PaperSize) => void;
     onLayoutChange: (layout: Layout) => void;
     onMarginsChange: (margins: Margins) => void;
+    onOrientationChange: (orientation: Orientation) => void;
   }
 
-  let { paper, layout, margins, onPaperChange, onLayoutChange, onMarginsChange }: Props = $props();
+  let { paper, layout, margins, orientation, onPaperChange, onLayoutChange, onMarginsChange, onOrientationChange }: Props = $props();
 
   function handlePaperChange(e: Event) {
     const name = (e.target as HTMLSelectElement).value;
@@ -51,6 +53,20 @@
         {/each}
       </select>
     </label>
+
+    <div class="orientation-toggle">
+      <span class="toggle-label">Orientation:</span>
+      <button
+        class="toggle-btn"
+        class:active={orientation === "portrait"}
+        onclick={() => onOrientationChange("portrait")}
+      >Portrait</button>
+      <button
+        class="toggle-btn"
+        class:active={orientation === "landscape"}
+        onclick={() => onOrientationChange("landscape")}
+      >Landscape</button>
+    </div>
 
     <label>
       Layout:
@@ -129,5 +145,47 @@
 
   input[type="number"] {
     width: 60px;
+  }
+
+  .orientation-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .toggle-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #444;
+    margin-right: 2px;
+  }
+
+  .toggle-btn {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    background: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    color: #444;
+  }
+
+  .toggle-btn:first-of-type {
+    border-radius: 4px 0 0 4px;
+  }
+
+  .toggle-btn:last-of-type {
+    border-radius: 0 4px 4px 0;
+    border-left: none;
+  }
+
+  .toggle-btn.active {
+    background: #4a90d9;
+    border-color: #4a90d9;
+    color: #fff;
+  }
+
+  .toggle-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
   }
 </style>

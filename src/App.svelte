@@ -7,12 +7,25 @@
   import { DEFAULT_PAPER } from "./lib/paper";
   import { DEFAULT_LAYOUT, DEFAULT_MARGINS } from "./lib/layout";
   import { exportJpeg } from "./lib/export";
-  import type { PaperSize, Layout, Margins, SlotImage } from "./lib/types";
+  import type { PaperSize, Layout, Margins, SlotImage, Orientation } from "./lib/types";
 
   let paper: PaperSize = $state(DEFAULT_PAPER);
   let layout: Layout = $state(DEFAULT_LAYOUT);
   let margins: Margins = $state(DEFAULT_MARGINS);
   let images: (SlotImage | null)[] = $state([]);
+  let orientation = $state<Orientation>("portrait");
+
+  let effectivePaper: PaperSize = $derived(
+    orientation === "landscape"
+      ? {
+          ...paper,
+          widthMm: paper.heightMm,
+          heightMm: paper.widthMm,
+          widthPx: paper.heightPx,
+          heightPx: paper.widthPx,
+        }
+      : paper,
+  );
 
   $effect(() => {
     const count = layout.rows * layout.cols;
@@ -56,7 +69,7 @@
   });
 
   async function handleExport() {
-    await exportJpeg(paper, layout, margins, images);
+    await exportJpeg(effectivePaper, layout, margins, images, orientation);
   }
 </script>
 
@@ -64,13 +77,15 @@
   {paper}
   {layout}
   {margins}
+  {orientation}
   onPaperChange={(p) => (paper = p)}
   onLayoutChange={(l) => (layout = l)}
   onMarginsChange={(m) => (margins = m)}
+  onOrientationChange={(o) => (orientation = o)}
 />
 
 <Preview
-  {paper}
+  paper={effectivePaper}
   {layout}
   {margins}
   {images}

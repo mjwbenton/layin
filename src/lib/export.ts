@@ -2,7 +2,7 @@ import { save } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { renderLayout, type RenderSlotData } from "./canvas-renderer";
 import { calculateSlots } from "./layout";
-import type { PaperSize, Layout, Margins, SlotImage } from "./types";
+import type { PaperSize, Layout, Margins, SlotImage, Orientation } from "./types";
 
 function defaultFilename(): string {
   const now = new Date();
@@ -16,6 +16,7 @@ export async function exportJpeg(
   layout: Layout,
   margins: Margins,
   images: (SlotImage | null)[],
+  orientation: Orientation = "portrait",
 ): Promise<void> {
   const slots = calculateSlots(paper.widthPx, paper.heightPx, layout, margins);
 
@@ -35,9 +36,25 @@ export async function exportJpeg(
 
   renderLayout(ctx, paper.widthPx, paper.heightPx, slotData);
 
+  // For landscape, rotate 90° CW onto a portrait canvas for the printer
+  let outputCanvas: HTMLCanvasElement;
+  if (orientation === "landscape") {
+    outputCanvas = document.createElement("canvas");
+    // Swap dimensions back to portrait for output
+    outputCanvas.width = paper.heightPx;
+    outputCanvas.height = paper.widthPx;
+    const outCtx = outputCanvas.getContext("2d");
+    if (!outCtx) throw new Error("Could not get output canvas context");
+    outCtx.translate(outputCanvas.width, 0);
+    outCtx.rotate(Math.PI / 2);
+    outCtx.drawImage(canvas, 0, 0);
+  } else {
+    outputCanvas = canvas;
+  }
+
   // Convert to JPEG blob
   const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
+    outputCanvas.toBlob(
       (b) => (b ? resolve(b) : reject(new Error("Failed to create JPEG blob"))),
       "image/jpeg",
       0.95,
