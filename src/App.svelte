@@ -5,6 +5,7 @@
   import ExportButton from "./components/ExportButton.svelte";
   import { DEFAULT_PAPER } from "./lib/paper";
   import { DEFAULT_LAYOUT, DEFAULT_MARGINS } from "./lib/layout";
+  import { exportJpeg } from "./lib/export";
   import type { PaperSize, Layout, Margins, SlotImage } from "./lib/types";
 
   let paper: PaperSize = $state(DEFAULT_PAPER);
@@ -42,8 +43,8 @@
     }
   }
 
-  function handleExport() {
-    // TODO: implement in Step 7
+  async function handleExport() {
+    await exportJpeg(paper, layout, margins, images);
   }
 </script>
 
