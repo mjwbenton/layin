@@ -1,39 +1,5 @@
 import type { Slot, FitMode } from "./types";
-
-/**
- * Pre-downsample a source image by repeatedly halving until within 2x of target size.
- * This avoids aliasing artifacts from large single-step downscales.
- */
-function downsampleImage(
-  source: CanvasImageSource,
-  sourceWidth: number,
-  sourceHeight: number,
-  targetWidth: number,
-  targetHeight: number,
-): { source: CanvasImageSource; width: number; height: number } {
-  let currentWidth = sourceWidth;
-  let currentHeight = sourceHeight;
-  let currentSource: CanvasImageSource = source;
-
-  while (currentWidth > targetWidth * 2 || currentHeight > targetHeight * 2) {
-    const nextWidth = Math.max(Math.ceil(currentWidth / 2), targetWidth);
-    const nextHeight = Math.max(Math.ceil(currentHeight / 2), targetHeight);
-
-    const stepCanvas = document.createElement("canvas");
-    stepCanvas.width = nextWidth;
-    stepCanvas.height = nextHeight;
-    const stepCtx = stepCanvas.getContext("2d")!;
-    stepCtx.imageSmoothingEnabled = true;
-    stepCtx.imageSmoothingQuality = "high";
-    stepCtx.drawImage(currentSource, 0, 0, currentWidth, currentHeight, 0, 0, nextWidth, nextHeight);
-
-    currentSource = stepCanvas;
-    currentWidth = nextWidth;
-    currentHeight = nextHeight;
-  }
-
-  return { source: currentSource, width: currentWidth, height: currentHeight };
-}
+import { cropToCanvas, resizeImage } from "./resize";
 
 export interface ImageDrawRect {
   sx: number;
@@ -106,18 +72,15 @@ export interface RenderSlotData {
   };
 }
 
-export function renderLayout(
+export async function renderLayout(
   ctx: CanvasRenderingContext2D,
   paperWidthPx: number,
   paperHeightPx: number,
   slotData: RenderSlotData[],
-) {
+): Promise<void> {
   // White background
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, paperWidthPx, paperHeightPx);
-
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
 
   for (const { slot, image } of slotData) {
     if (image) {
@@ -137,33 +100,13 @@ export function renderLayout(
         ctx.fillRect(slot.x, slot.y, slot.width, slot.height);
       }
 
-      // Pre-downsample to avoid aliasing from large single-step downscales
-      const { source, width, height } = downsampleImage(
+      // Crop source to visible region, then Lanczos3 resize via pica
+      const cropped = cropToCanvas(
         image.element,
-        image.element.naturalWidth,
-        image.element.naturalHeight,
-        rect.dw,
-        rect.dh,
+        rect.sx, rect.sy, rect.sw, rect.sh,
       );
-
-      if (source === image.element) {
-        // No pre-downsampling needed, draw directly with source crop
-        ctx.drawImage(
-          image.element,
-          rect.sx, rect.sy, rect.sw, rect.sh,
-          rect.dx, rect.dy, rect.dw, rect.dh,
-        );
-      } else {
-        // Source was pre-downsampled — recalculate crop coordinates for the smaller source
-        const scaleX = width / image.element.naturalWidth;
-        const scaleY = height / image.element.naturalHeight;
-        ctx.drawImage(
-          source,
-          rect.sx * scaleX, rect.sy * scaleY,
-          rect.sw * scaleX, rect.sh * scaleY,
-          rect.dx, rect.dy, rect.dw, rect.dh,
-        );
-      }
+      const resized = await resizeImage(cropped, rect.dw, rect.dh);
+      ctx.drawImage(resized, rect.dx, rect.dy);
     }
   }
 }

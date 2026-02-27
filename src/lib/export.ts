@@ -36,7 +36,7 @@ export async function exportJpeg(
       : undefined,
   }));
 
-  renderLayout(ctx, paper.widthPx, paper.heightPx, slotData);
+  await renderLayout(ctx, paper.widthPx, paper.heightPx, slotData);
 
   // For landscape, rotate 90° CW onto a portrait canvas for the printer
   let outputCanvas: HTMLCanvasElement;
