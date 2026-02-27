@@ -4,6 +4,7 @@ export interface PaperSize {
   heightMm: number;
   widthPx: number;
   heightPx: number;
+  bleed?: Bleed;
 }
 
 export interface Layout {
@@ -32,4 +33,19 @@ export interface Slot {
 export interface Margins {
   edgeMm: number;
   gutterMm: number;
+}
+
+export interface Bleed {
+  topMm: number;
+  bottomMm: number;
+  leftMm: number;
+  rightMm: number;
+}
+
+export interface EffectiveMargins {
+  topPx: number;
+  bottomPx: number;
+  leftPx: number;
+  rightPx: number;
+  gutterPx: number;
 }

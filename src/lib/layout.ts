@@ -1,4 +1,4 @@
-import type { Layout, Slot, Margins } from "./types";
+import type { Layout, Slot, Margins, Bleed, EffectiveMargins } from "./types";
 import { mmToPx } from "./paper";
 
 export const LAYOUTS: Layout[] = [
@@ -15,20 +15,34 @@ export const DEFAULT_MARGINS: Margins = {
   gutterMm: 2,
 };
 
+export function computeEffectiveMargins(margins: Margins, bleed?: Bleed): EffectiveMargins {
+  const topMm = margins.edgeMm + (bleed?.topMm ?? 0);
+  const bottomMm = margins.edgeMm + (bleed?.bottomMm ?? 0);
+  const leftMm = margins.edgeMm + (bleed?.leftMm ?? 0);
+  const rightMm = margins.edgeMm + (bleed?.rightMm ?? 0);
+
+  return {
+    topPx: mmToPx(topMm),
+    bottomPx: mmToPx(bottomMm),
+    leftPx: mmToPx(leftMm),
+    rightPx: mmToPx(rightMm),
+    gutterPx: mmToPx(margins.gutterMm),
+  };
+}
+
 export function calculateSlots(
   paperWidthPx: number,
   paperHeightPx: number,
   layout: Layout,
-  margins: Margins,
+  margins: EffectiveMargins,
 ): Slot[] {
-  const edgePx = mmToPx(margins.edgeMm);
-  const gutterPx = mmToPx(margins.gutterMm);
+  const { topPx, bottomPx, leftPx, rightPx, gutterPx } = margins;
 
   const totalGutterX = gutterPx * (layout.cols - 1);
   const totalGutterY = gutterPx * (layout.rows - 1);
 
-  const availableWidth = paperWidthPx - 2 * edgePx - totalGutterX;
-  const availableHeight = paperHeightPx - 2 * edgePx - totalGutterY;
+  const availableWidth = paperWidthPx - leftPx - rightPx - totalGutterX;
+  const availableHeight = paperHeightPx - topPx - bottomPx - totalGutterY;
 
   const slotWidth = Math.floor(availableWidth / layout.cols);
   const slotHeight = Math.floor(availableHeight / layout.rows);
@@ -38,8 +52,8 @@ export function calculateSlots(
   for (let row = 0; row < layout.rows; row++) {
     for (let col = 0; col < layout.cols; col++) {
       slots.push({
-        x: edgePx + col * (slotWidth + gutterPx),
-        y: edgePx + row * (slotHeight + gutterPx),
+        x: leftPx + col * (slotWidth + gutterPx),
+        y: topPx + row * (slotHeight + gutterPx),
         width: slotWidth,
         height: slotHeight,
       });

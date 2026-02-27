@@ -1,13 +1,14 @@
 <script lang="ts">
   import { calculateSlots } from "../lib/layout";
   import { renderLayout, type RenderSlotData } from "../lib/canvas-renderer";
+  import { mmToPx } from "../lib/paper";
   import Slot from "./Slot.svelte";
-  import type { PaperSize, Layout, Margins, SlotImage } from "../lib/types";
+  import type { PaperSize, Layout, EffectiveMargins, SlotImage } from "../lib/types";
 
   interface Props {
     paper: PaperSize;
     layout: Layout;
-    margins: Margins;
+    margins: EffectiveMargins;
     images: (SlotImage | null)[];
     onSlotDrop: (index: number, image: SlotImage) => void;
     onSlotClear: (index: number) => void;
@@ -59,6 +60,44 @@
     }));
 
     renderLayout(ctx, paper.widthPx, paper.heightPx, slotData);
+
+    // Draw bleed indicators (preview only)
+    const bleed = paper.bleed;
+    if (bleed) {
+      const bTop = mmToPx(bleed.topMm);
+      const bBottom = mmToPx(bleed.bottomMm);
+      const bLeft = mmToPx(bleed.leftMm);
+      const bRight = mmToPx(bleed.rightMm);
+      const w = paper.widthPx;
+      const h = paper.heightPx;
+
+      // Semi-transparent red overlay on bleed zones
+      ctx.fillStyle = "rgba(255, 0, 0, 0.08)";
+      ctx.fillRect(0, 0, w, bTop); // top
+      ctx.fillRect(0, h - bBottom, w, bBottom); // bottom
+      ctx.fillRect(0, bTop, bLeft, h - bTop - bBottom); // left
+      ctx.fillRect(w - bRight, bTop, bRight, h - bTop - bBottom); // right
+
+      // Dashed red cut lines
+      ctx.strokeStyle = "rgba(255, 0, 0, 0.5)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([12, 8]);
+      ctx.beginPath();
+      // Top cut line
+      ctx.moveTo(0, bTop);
+      ctx.lineTo(w, bTop);
+      // Bottom cut line
+      ctx.moveTo(0, h - bBottom);
+      ctx.lineTo(w, h - bBottom);
+      // Left cut line
+      ctx.moveTo(bLeft, 0);
+      ctx.lineTo(bLeft, h);
+      // Right cut line
+      ctx.moveTo(w - bRight, 0);
+      ctx.lineTo(w - bRight, h);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
   });
 </script>
 

@@ -1,9 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { calculateSlots, LAYOUTS, DEFAULT_LAYOUT, DEFAULT_MARGINS } from "../lib/layout";
-import { DEFAULT_PAPER } from "../lib/paper";
-import type { Layout, Margins } from "../lib/types";
+import { calculateSlots, computeEffectiveMargins, LAYOUTS, DEFAULT_LAYOUT, DEFAULT_MARGINS } from "../lib/layout";
+import { DEFAULT_PAPER, SELPHY_BLEED, rotateBleedLandscape, mmToPx } from "../lib/paper";
+import type { Layout, Margins, Bleed } from "../lib/types";
 
 const postcard = DEFAULT_PAPER;
+
+// Helper: compute effective margins without bleed (matches old symmetric behavior)
+function symmetricMargins(margins: Margins) {
+  return computeEffectiveMargins(margins);
+}
 
 describe("LAYOUTS", () => {
   it("contains four layouts", () => {
@@ -28,7 +33,7 @@ describe("calculateSlots", () => {
         postcard.widthPx,
         postcard.heightPx,
         layout,
-        DEFAULT_MARGINS,
+        symmetricMargins(DEFAULT_MARGINS),
       );
       expect(slots).toHaveLength(layout.rows * layout.cols);
     }
@@ -40,7 +45,7 @@ describe("calculateSlots", () => {
       postcard.widthPx,
       postcard.heightPx,
       layout,
-      DEFAULT_MARGINS,
+      symmetricMargins(DEFAULT_MARGINS),
     );
     expect(slots).toHaveLength(1);
   });
@@ -51,7 +56,7 @@ describe("calculateSlots", () => {
       postcard.widthPx,
       postcard.heightPx,
       layout,
-      DEFAULT_MARGINS,
+      symmetricMargins(DEFAULT_MARGINS),
     );
     expect(slots).toHaveLength(4);
   });
@@ -62,7 +67,7 @@ describe("calculateSlots", () => {
         postcard.widthPx,
         postcard.heightPx,
         layout,
-        DEFAULT_MARGINS,
+        symmetricMargins(DEFAULT_MARGINS),
       );
       for (const slot of slots) {
         expect(slot.width).toBeGreaterThan(0);
@@ -77,7 +82,7 @@ describe("calculateSlots", () => {
         postcard.widthPx,
         postcard.heightPx,
         layout,
-        DEFAULT_MARGINS,
+        symmetricMargins(DEFAULT_MARGINS),
       );
       for (const slot of slots) {
         expect(slot.x).toBeGreaterThanOrEqual(0);
@@ -94,7 +99,7 @@ describe("calculateSlots", () => {
         postcard.widthPx,
         postcard.heightPx,
         layout,
-        DEFAULT_MARGINS,
+        symmetricMargins(DEFAULT_MARGINS),
       );
       const first = slots[0];
       for (const slot of slots) {
@@ -110,7 +115,7 @@ describe("calculateSlots", () => {
         postcard.widthPx,
         postcard.heightPx,
         layout,
-        DEFAULT_MARGINS,
+        symmetricMargins(DEFAULT_MARGINS),
       );
       for (let i = 0; i < slots.length; i++) {
         for (let j = i + 1; j < slots.length; j++) {
@@ -131,7 +136,7 @@ describe("calculateSlots", () => {
       postcard.widthPx,
       postcard.heightPx,
       layout,
-      margins,
+      symmetricMargins(margins),
     );
     expect(slots[0].x).toBe(0);
     expect(slots[0].y).toBe(0);
@@ -142,7 +147,7 @@ describe("calculateSlots", () => {
   it("zero margins with 2x2 divides evenly", () => {
     const margins: Margins = { edgeMm: 0, gutterMm: 0 };
     const layout: Layout = { label: "2x2", rows: 2, cols: 2 };
-    const slots = calculateSlots(1000, 1000, layout, margins);
+    const slots = calculateSlots(1000, 1000, layout, symmetricMargins(margins));
     expect(slots).toHaveLength(4);
     for (const slot of slots) {
       expect(slot.width).toBe(500);
@@ -156,7 +161,7 @@ describe("calculateSlots", () => {
       postcard.widthPx,
       postcard.heightPx,
       layout,
-      DEFAULT_MARGINS,
+      symmetricMargins(DEFAULT_MARGINS),
     );
     expect(slots[0].y).toBe(slots[1].y);
     expect(slots[1].x).toBeGreaterThan(slots[0].x);
@@ -168,9 +173,72 @@ describe("calculateSlots", () => {
       postcard.widthPx,
       postcard.heightPx,
       layout,
-      DEFAULT_MARGINS,
+      symmetricMargins(DEFAULT_MARGINS),
     );
     expect(slots[0].x).toBe(slots[1].x);
     expect(slots[1].y).toBeGreaterThan(slots[0].y);
+  });
+
+  it("asymmetric margins produce correct slot positions", () => {
+    const layout: Layout = { label: "1x1", rows: 1, cols: 1 };
+    const em = computeEffectiveMargins(
+      { edgeMm: 5, gutterMm: 0 },
+      SELPHY_BLEED,
+    );
+    const slots = calculateSlots(postcard.widthPx, postcard.heightPx, layout, em);
+    // top: 5 + 4 = 9mm, bottom: 5 + 5.5 = 10.5mm, left: 5 + 3.5 = 8.5mm, right: 5 + 3 = 8mm
+    expect(slots[0].x).toBe(mmToPx(8.5));
+    expect(slots[0].y).toBe(mmToPx(9));
+    expect(slots[0].width).toBe(postcard.widthPx - mmToPx(8.5) - mmToPx(8));
+    expect(slots[0].height).toBe(postcard.heightPx - mmToPx(9) - mmToPx(10.5));
+  });
+});
+
+describe("computeEffectiveMargins", () => {
+  it("without bleed returns symmetric margins", () => {
+    const em = computeEffectiveMargins({ edgeMm: 5, gutterMm: 3 });
+    const edgePx = mmToPx(5);
+    expect(em.topPx).toBe(edgePx);
+    expect(em.bottomPx).toBe(edgePx);
+    expect(em.leftPx).toBe(edgePx);
+    expect(em.rightPx).toBe(edgePx);
+    expect(em.gutterPx).toBe(mmToPx(3));
+  });
+
+  it("with bleed adds bleed to each side", () => {
+    const bleed: Bleed = { topMm: 4, bottomMm: 5.5, leftMm: 3.5, rightMm: 3 };
+    const em = computeEffectiveMargins({ edgeMm: 5, gutterMm: 2 }, bleed);
+    expect(em.topPx).toBe(mmToPx(9));
+    expect(em.bottomPx).toBe(mmToPx(10.5));
+    expect(em.leftPx).toBe(mmToPx(8.5));
+    expect(em.rightPx).toBe(mmToPx(8));
+    expect(em.gutterPx).toBe(mmToPx(2));
+  });
+
+  it("with zero edge and bleed returns bleed only", () => {
+    const bleed: Bleed = { topMm: 4, bottomMm: 5.5, leftMm: 3.5, rightMm: 3 };
+    const em = computeEffectiveMargins({ edgeMm: 0, gutterMm: 0 }, bleed);
+    expect(em.topPx).toBe(mmToPx(4));
+    expect(em.bottomPx).toBe(mmToPx(5.5));
+    expect(em.leftPx).toBe(mmToPx(3.5));
+    expect(em.rightPx).toBe(mmToPx(3));
+  });
+});
+
+describe("rotateBleedLandscape", () => {
+  it("rotates portrait bleed for landscape orientation", () => {
+    const portrait: Bleed = { topMm: 4, bottomMm: 5.5, leftMm: 3.5, rightMm: 3 };
+    const landscape = rotateBleedLandscape(portrait);
+    // Matches export's 90° CW rotation
+    expect(landscape.topMm).toBe(3);      // portrait right
+    expect(landscape.rightMm).toBe(5.5);  // portrait bottom
+    expect(landscape.bottomMm).toBe(3.5); // portrait left
+    expect(landscape.leftMm).toBe(4);     // portrait top
+  });
+
+  it("identity for uniform bleed", () => {
+    const uniform: Bleed = { topMm: 5, bottomMm: 5, leftMm: 5, rightMm: 5 };
+    const rotated = rotateBleedLandscape(uniform);
+    expect(rotated).toEqual(uniform);
   });
 });

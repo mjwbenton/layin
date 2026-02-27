@@ -2,7 +2,7 @@ import { save } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { renderLayout, type RenderSlotData } from "./canvas-renderer";
 import { calculateSlots } from "./layout";
-import type { PaperSize, Layout, Margins, SlotImage, Orientation } from "./types";
+import type { PaperSize, Layout, EffectiveMargins, SlotImage, Orientation } from "./types";
 
 function defaultFilename(): string {
   const now = new Date();
@@ -14,7 +14,7 @@ function defaultFilename(): string {
 export async function exportJpeg(
   paper: PaperSize,
   layout: Layout,
-  margins: Margins,
+  margins: EffectiveMargins,
   images: (SlotImage | null)[],
   orientation: Orientation = "portrait",
 ): Promise<void> {

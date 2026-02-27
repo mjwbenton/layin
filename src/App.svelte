@@ -5,9 +5,10 @@
   import Preview from "./components/Preview.svelte";
   import ExportButton from "./components/ExportButton.svelte";
   import { DEFAULT_PAPER } from "./lib/paper";
-  import { DEFAULT_LAYOUT, DEFAULT_MARGINS } from "./lib/layout";
+  import { DEFAULT_LAYOUT, DEFAULT_MARGINS, computeEffectiveMargins } from "./lib/layout";
   import { exportJpeg } from "./lib/export";
-  import type { PaperSize, Layout, Margins, SlotImage, Orientation } from "./lib/types";
+  import { rotateBleedLandscape } from "./lib/paper";
+  import type { PaperSize, Layout, Margins, SlotImage, Orientation, EffectiveMargins } from "./lib/types";
 
   let paper: PaperSize = $state(DEFAULT_PAPER);
   let layout: Layout = $state(DEFAULT_LAYOUT);
@@ -23,8 +24,13 @@
           heightMm: paper.widthMm,
           widthPx: paper.heightPx,
           heightPx: paper.widthPx,
+          bleed: paper.bleed ? rotateBleedLandscape(paper.bleed) : undefined,
         }
       : paper,
+  );
+
+  let effectiveMargins: EffectiveMargins = $derived(
+    computeEffectiveMargins(margins, effectivePaper.bleed),
   );
 
   $effect(() => {
@@ -69,7 +75,7 @@
   });
 
   async function handleExport() {
-    await exportJpeg(effectivePaper, layout, margins, images, orientation);
+    await exportJpeg(effectivePaper, layout, effectiveMargins, images, orientation);
   }
 </script>
 
@@ -87,7 +93,7 @@
 <Preview
   paper={effectivePaper}
   {layout}
-  {margins}
+  margins={effectiveMargins}
   {images}
   onSlotDrop={handleSlotDrop}
   onSlotClear={handleSlotClear}
