@@ -186,11 +186,11 @@ describe("calculateSlots", () => {
       SELPHY_BLEED,
     );
     const slots = calculateSlots(postcard.widthPx, postcard.heightPx, layout, em);
-    // top: 5 + 4 = 9mm, bottom: 5 + 5.5 = 10.5mm, left: 5 + 3.5 = 8.5mm, right: 5 + 3 = 8mm
+    // top: 5 + 4.25 = 9.25mm, bottom: 5 + 5.5 = 10.5mm, left: 5 + 3.5 = 8.5mm, right: 5 + 3 = 8mm
     expect(slots[0].x).toBe(mmToPx(8.5));
-    expect(slots[0].y).toBe(mmToPx(9));
+    expect(slots[0].y).toBe(mmToPx(9.25));
     expect(slots[0].width).toBe(postcard.widthPx - mmToPx(8.5) - mmToPx(8));
-    expect(slots[0].height).toBe(postcard.heightPx - mmToPx(9) - mmToPx(10.5));
+    expect(slots[0].height).toBe(postcard.heightPx - mmToPx(9.25) - mmToPx(10.5));
   });
 });
 
@@ -206,9 +206,9 @@ describe("computeEffectiveMargins", () => {
   });
 
   it("with bleed adds bleed to each side", () => {
-    const bleed: Bleed = { topMm: 4, bottomMm: 5.5, leftMm: 3.5, rightMm: 3 };
+    const bleed: Bleed = { topMm: 4.25, bottomMm: 5.5, leftMm: 3.5, rightMm: 3 };
     const em = computeEffectiveMargins({ edgeMm: 5, gutterMm: 2 }, bleed);
-    expect(em.topPx).toBe(mmToPx(9));
+    expect(em.topPx).toBe(mmToPx(9.25));
     expect(em.bottomPx).toBe(mmToPx(10.5));
     expect(em.leftPx).toBe(mmToPx(8.5));
     expect(em.rightPx).toBe(mmToPx(8));
@@ -216,9 +216,9 @@ describe("computeEffectiveMargins", () => {
   });
 
   it("with zero edge and bleed returns bleed only", () => {
-    const bleed: Bleed = { topMm: 4, bottomMm: 5.5, leftMm: 3.5, rightMm: 3 };
+    const bleed: Bleed = { topMm: 4.25, bottomMm: 5.5, leftMm: 3.5, rightMm: 3 };
     const em = computeEffectiveMargins({ edgeMm: 0, gutterMm: 0 }, bleed);
-    expect(em.topPx).toBe(mmToPx(4));
+    expect(em.topPx).toBe(mmToPx(4.25));
     expect(em.bottomPx).toBe(mmToPx(5.5));
     expect(em.leftPx).toBe(mmToPx(3.5));
     expect(em.rightPx).toBe(mmToPx(3));
@@ -227,13 +227,13 @@ describe("computeEffectiveMargins", () => {
 
 describe("rotateBleedLandscape", () => {
   it("rotates portrait bleed for landscape orientation", () => {
-    const portrait: Bleed = { topMm: 4, bottomMm: 5.5, leftMm: 3.5, rightMm: 3 };
+    const portrait: Bleed = { topMm: 4.25, bottomMm: 5.5, leftMm: 3.5, rightMm: 3 };
     const landscape = rotateBleedLandscape(portrait);
     // Matches export's 90° CW rotation
     expect(landscape.topMm).toBe(3);      // portrait right
     expect(landscape.rightMm).toBe(5.5);  // portrait bottom
     expect(landscape.bottomMm).toBe(3.5); // portrait left
-    expect(landscape.leftMm).toBe(4);     // portrait top
+    expect(landscape.leftMm).toBe(4.25);   // portrait top
   });
 
   it("identity for uniform bleed", () => {
