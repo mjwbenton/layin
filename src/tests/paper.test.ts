@@ -24,12 +24,12 @@ describe("mmToPx", () => {
 });
 
 describe("PAPER_SIZES", () => {
-  it("contains three paper sizes", () => {
-    expect(PAPER_SIZES).toHaveLength(3);
+  it("contains one paper size", () => {
+    expect(PAPER_SIZES).toHaveLength(1);
   });
 
-  it("has Postcard as first entry", () => {
-    expect(PAPER_SIZES[0].name).toBe("Postcard");
+  it("has Canon Selphy CP1000 Postcard as first entry", () => {
+    expect(PAPER_SIZES[0].name).toBe("Canon Selphy CP1000 Postcard");
   });
 
   it("Postcard dimensions match spec", () => {
@@ -38,22 +38,6 @@ describe("PAPER_SIZES", () => {
     expect(postcard.heightMm).toBe(148);
     expect(postcard.widthPx).toBe(1181);
     expect(postcard.heightPx).toBe(1748);
-  });
-
-  it("L Size dimensions match spec", () => {
-    const lsize = PAPER_SIZES[1];
-    expect(lsize.widthMm).toBe(89);
-    expect(lsize.heightMm).toBe(119);
-    expect(lsize.widthPx).toBe(1051);
-    expect(lsize.heightPx).toBe(1406);
-  });
-
-  it("Card dimensions match spec", () => {
-    const card = PAPER_SIZES[2];
-    expect(card.widthMm).toBe(54);
-    expect(card.heightMm).toBe(86);
-    expect(card.widthPx).toBe(638);
-    expect(card.heightPx).toBe(1016);
   });
 
   it("pixel dimensions match mmToPx conversion", () => {
@@ -65,7 +49,7 @@ describe("PAPER_SIZES", () => {
 });
 
 describe("DEFAULT_PAPER", () => {
-  it("is Postcard", () => {
-    expect(DEFAULT_PAPER.name).toBe("Postcard");
+  it("is Canon Selphy CP1000 Postcard", () => {
+    expect(DEFAULT_PAPER.name).toBe("Canon Selphy CP1000 Postcard");
   });
 });

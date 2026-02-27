@@ -1,26 +1,17 @@
 <script lang="ts">
-  import { PAPER_SIZES } from "../lib/paper";
   import { LAYOUTS } from "../lib/layout";
-  import type { PaperSize, Layout, Margins, Orientation } from "../lib/types";
+  import type { Layout, Margins, Orientation } from "../lib/types";
 
   interface Props {
-    paper: PaperSize;
     layout: Layout;
     margins: Margins;
     orientation: Orientation;
-    onPaperChange: (paper: PaperSize) => void;
     onLayoutChange: (layout: Layout) => void;
     onMarginsChange: (margins: Margins) => void;
     onOrientationChange: (orientation: Orientation) => void;
   }
 
-  let { paper, layout, margins, orientation, onPaperChange, onLayoutChange, onMarginsChange, onOrientationChange }: Props = $props();
-
-  function handlePaperChange(e: Event) {
-    const name = (e.target as HTMLSelectElement).value;
-    const found = PAPER_SIZES.find((p) => p.name === name);
-    if (found) onPaperChange(found);
-  }
+  let { layout, margins, orientation, onLayoutChange, onMarginsChange, onOrientationChange }: Props = $props();
 
   function handleLayoutChange(e: Event) {
     const label = (e.target as HTMLSelectElement).value;
@@ -45,15 +36,6 @@
 
 <div class="toolbar">
   <div class="toolbar-row">
-    <label>
-      Paper:
-      <select value={paper.name} onchange={handlePaperChange}>
-        {#each PAPER_SIZES as p}
-          <option value={p.name}>{p.name} ({p.widthMm}x{p.heightMm}mm)</option>
-        {/each}
-      </select>
-    </label>
-
     <div class="orientation-toggle">
       <span class="toggle-label">Orientation:</span>
       <button

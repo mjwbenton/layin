@@ -80,11 +80,9 @@
 </script>
 
 <Toolbar
-  {paper}
   {layout}
   {margins}
   {orientation}
-  onPaperChange={(p) => (paper = p)}
   onLayoutChange={(l) => (layout = l)}
   onMarginsChange={(m) => (margins = m)}
   onOrientationChange={(o) => (orientation = o)}

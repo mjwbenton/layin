@@ -29,27 +29,11 @@ export function rotateBleedLandscape(bleed: Bleed): Bleed {
 
 export const PAPER_SIZES: PaperSize[] = [
   {
-    name: "Postcard",
+    name: "Canon Selphy CP1000 Postcard",
     widthMm: 100,
     heightMm: 148,
     widthPx: 1181,
     heightPx: 1748,
-    bleed: SELPHY_BLEED,
-  },
-  {
-    name: "L Size",
-    widthMm: 89,
-    heightMm: 119,
-    widthPx: 1051,
-    heightPx: 1406,
-    bleed: SELPHY_BLEED,
-  },
-  {
-    name: "Card",
-    widthMm: 54,
-    heightMm: 86,
-    widthPx: 638,
-    heightPx: 1016,
     bleed: SELPHY_BLEED,
   },
 ];
