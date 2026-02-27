@@ -11,7 +11,7 @@ export function mmToPx(mm: number): number {
 export const SELPHY_BLEED: Bleed = {
   topMm: 4.25,
   bottomMm: 5.5,
-  leftMm: 3.5,
+  leftMm: 3.6,
   rightMm: 3,
 };
 

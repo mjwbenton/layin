@@ -186,10 +186,10 @@ describe("calculateSlots", () => {
       SELPHY_BLEED,
     );
     const slots = calculateSlots(postcard.widthPx, postcard.heightPx, layout, em);
-    // top: 5 + 4.25 = 9.25mm, bottom: 5 + 5.5 = 10.5mm, left: 5 + 3.5 = 8.5mm, right: 5 + 3 = 8mm
-    expect(slots[0].x).toBe(mmToPx(8.5));
+    // top: 5 + 4.25 = 9.25mm, bottom: 5 + 5.5 = 10.5mm, left: 5 + 3.6 = 8.6mm, right: 5 + 3 = 8mm
+    expect(slots[0].x).toBe(mmToPx(8.6));
     expect(slots[0].y).toBe(mmToPx(9.25));
-    expect(slots[0].width).toBe(postcard.widthPx - mmToPx(8.5) - mmToPx(8));
+    expect(slots[0].width).toBe(postcard.widthPx - mmToPx(8.6) - mmToPx(8));
     expect(slots[0].height).toBe(postcard.heightPx - mmToPx(9.25) - mmToPx(10.5));
   });
 });
