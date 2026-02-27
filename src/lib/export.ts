@@ -26,6 +26,8 @@ export async function exportJpeg(
   canvas.height = paper.heightPx;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Could not get canvas context");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
 
   const slotData: RenderSlotData[] = slots.map((slot, i) => ({
     slot,
