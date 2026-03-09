@@ -47,20 +47,11 @@ Produces a distributable binary in `src-tauri/target/release/bundle/`.
 
 ## Usage
 
-1. **Select paper size** — Choose from Postcard, L Size, or Card in the toolbar
-2. **Choose layout** — Pick a grid layout (1x1, 1x2, 2x1, 2x2)
-3. **Adjust margins** — Set edge margin and gutter spacing in millimetres
-4. **Drag images** — Drop image files from your file system onto individual slots
-5. **Toggle fill/fit** — Hover over a filled slot and click Fill/Fit to toggle the image scaling mode
-6. **Export** — Click "Export JPEG" to save a full-resolution print-ready JPEG
-
-## Supported Paper Sizes
-
-| Name     | Dimensions (mm) | Dimensions (px at 300 DPI) |
-|----------|-----------------|---------------------------|
-| Postcard | 100 x 148       | 1181 x 1748              |
-| L Size   | 89 x 119        | 1051 x 1406              |
-| Card     | 54 x 86         | 638 x 1016               |
+1. **Choose layout** — Pick a grid layout (1x1, 1x2, 2x1, 2x2)
+2. **Adjust margins** — Set edge margin and gutter spacing in millimetres
+3. **Drag images** — Drop image files from your file system onto individual slots
+4. **Toggle fill/fit** — Hover over a filled slot and click Fill/Fit to toggle the image scaling mode
+5. **Export** — Click "Export JPEG" to save a full-resolution print-ready JPEG
 
 ## Tech Stack
 
